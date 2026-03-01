@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: puzzle
+      POSTGRES_USER: puzzle
+      POSTGRES_PASSWORD: puzzle_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U puzzle"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: src/Backend/Puzzle.WebApi/Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=db;Database=puzzle;Username=puzzle;Password=puzzle_pass
+      - JwtSettings__Secret=PuzzleStationeryShopSuperSecretKey2024!@#
+      - JwtSettings__Issuer=Puzzle
+      - JwtSettings__Audience=PuzzleApp
+      - JwtSettings__ExpirationInHours=8
+      - PrinterSettings__PrinterName=XPrinter
+      - PrinterSettings__ConnectionType=USB
+      - PrinterSettings__UsbPath=/dev/usb/lp0
+    devices:
+      - "/dev/usb/lp0:/dev/usb/lp0"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: src/Frontend/puzzle-ui/Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
