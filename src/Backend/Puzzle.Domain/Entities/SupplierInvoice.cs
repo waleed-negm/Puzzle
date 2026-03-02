@@ -11,6 +11,6 @@ public class SupplierInvoice : BaseAuditableEntity
     public string? Notes { get; set; }
 
     public Supplier Supplier { get; set; } = default!;
-    public ICollection<SupplierInvoiceItem> Items { get; set; } = new List<SupplierInvoiceItem>();
-    public ICollection<SupplierInvoicePayment> Payments { get; set; } = new List<SupplierInvoicePayment>();
+    public ICollection<SupplierInvoiceItem> Items { get; set; } = [];
+    public ICollection<SupplierInvoicePayment> Payments { get; set; } = [];
 }

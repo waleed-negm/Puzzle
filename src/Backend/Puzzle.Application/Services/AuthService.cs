@@ -11,20 +11,11 @@ using Puzzle.Domain.Entities;
 
 namespace Puzzle.Application.Services;
 
-public class AuthService
+public class AuthService(IApplicationDbContext context, IConfiguration configuration)
 {
-    private readonly IApplicationDbContext _context;
-    private readonly IConfiguration _configuration;
-
-    public AuthService(IApplicationDbContext context, IConfiguration configuration)
-    {
-        _context = context;
-        _configuration = configuration;
-    }
-
     public async Task<LoginResponse> Login(LoginRequest request)
     {
-        var employee = await _context.Employees
+        var employee = await context.Employees
             .FirstOrDefaultAsync(e => e.Username == request.Username && e.IsActive);
 
         if (employee is null)
@@ -47,7 +38,7 @@ public class AuthService
 
     public async Task ChangePassword(int employeeId, ChangePasswordRequest request)
     {
-        var employee = await _context.Employees
+        var employee = await context.Employees
             .FirstOrDefaultAsync(e => e.Id == employeeId)
             ?? throw AppException.NotFound("Employee", employeeId);
 
@@ -57,15 +48,15 @@ public class AuthService
         employee.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
         employee.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 
     private string GenerateToken(Employee employee)
     {
-        var secret = _configuration["JwtSettings:Secret"]!;
-        var issuer = _configuration["JwtSettings:Issuer"]!;
-        var audience = _configuration["JwtSettings:Audience"]!;
-        var expirationHours = int.Parse(_configuration["JwtSettings:ExpirationInHours"]!);
+        var secret = configuration["JwtSettings:Secret"]!;
+        var issuer = configuration["JwtSettings:Issuer"]!;
+        var audience = configuration["JwtSettings:Audience"]!;
+        var expirationHours = int.Parse(configuration["JwtSettings:ExpirationInHours"]!);
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

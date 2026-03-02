@@ -148,10 +148,9 @@ public class SupplierInvoiceService
     public async Task<List<PaymentDto>> GetPayments(int id)
     {
         var invoiceExists = await _context.SupplierInvoices.AnyAsync(i => i.Id == id);
-        if (!invoiceExists)
-            throw AppException.NotFound("Supplier Invoice", id);
-
-        return await _context.SupplierInvoicePayments
+        return !invoiceExists
+            ? throw AppException.NotFound("Supplier Invoice", id)
+            : await _context.SupplierInvoicePayments
             .AsNoTracking()
             .Where(p => p.SupplierInvoiceId == id)
             .OrderByDescending(p => p.PaymentDate)

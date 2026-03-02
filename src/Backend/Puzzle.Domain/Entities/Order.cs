@@ -15,6 +15,6 @@ public class Order : BaseAuditableEntity
     public string? Notes { get; set; }
 
     public Client? Client { get; set; }
-    public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
-    public ICollection<OrderPayment> Payments { get; set; } = new List<OrderPayment>();
+    public ICollection<OrderItem> Items { get; set; } = [];
+    public ICollection<OrderPayment> Payments { get; set; } = [];
 }

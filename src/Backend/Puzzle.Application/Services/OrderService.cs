@@ -210,10 +210,9 @@ public class OrderService
     public async Task<List<PaymentDto>> GetPayments(int id)
     {
         var orderExists = await _context.Orders.AnyAsync(o => o.Id == id);
-        if (!orderExists)
-            throw AppException.NotFound("Order", id);
-
-        return await _context.OrderPayments
+        return !orderExists
+            ? throw AppException.NotFound("Order", id)
+            : await _context.OrderPayments
             .AsNoTracking()
             .Where(p => p.OrderId == id)
             .OrderByDescending(p => p.PaymentDate)

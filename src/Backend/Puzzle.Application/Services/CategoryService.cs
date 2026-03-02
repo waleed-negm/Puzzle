@@ -6,18 +6,11 @@ using Puzzle.Domain.Entities;
 
 namespace Puzzle.Application.Services;
 
-public class CategoryService
+public class CategoryService(IApplicationDbContext context)
 {
-    private readonly IApplicationDbContext _context;
-
-    public CategoryService(IApplicationDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<List<CategoryDto>> GetAll()
     {
-        return await _context.Categories
+        return await context.Categories
             .AsNoTracking()
             .OrderBy(c => c.Name)
             .Select(c => new CategoryDto(c.Id, c.Name, c.Description))
@@ -26,7 +19,7 @@ public class CategoryService
 
     public async Task<CategoryDto> GetById(int id)
     {
-        var category = await _context.Categories
+        var category = await context.Categories
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id)
             ?? throw AppException.NotFound("Category", id);
@@ -43,15 +36,15 @@ public class CategoryService
             CreatedAt = DateTime.UtcNow
         };
 
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
+        context.Categories.Add(category);
+        await context.SaveChangesAsync();
 
         return new CategoryDto(category.Id, category.Name, category.Description);
     }
 
     public async Task<CategoryDto> Update(int id, UpdateCategoryRequest request)
     {
-        var category = await _context.Categories
+        var category = await context.Categories
             .FirstOrDefaultAsync(c => c.Id == id)
             ?? throw AppException.NotFound("Category", id);
 
@@ -59,22 +52,22 @@ public class CategoryService
         category.Description = request.Description;
         category.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return new CategoryDto(category.Id, category.Name, category.Description);
     }
 
     public async Task Delete(int id)
     {
-        var category = await _context.Categories
+        var category = await context.Categories
             .FirstOrDefaultAsync(c => c.Id == id)
             ?? throw AppException.NotFound("Category", id);
 
-        var hasProducts = await _context.Products.AnyAsync(p => p.CategoryId == id);
+        var hasProducts = await context.Products.AnyAsync(p => p.CategoryId == id);
         if (hasProducts)
             throw AppException.BadRequest("Cannot delete category that has associated products.");
 
-        _context.Categories.Remove(category);
-        await _context.SaveChangesAsync();
+        context.Categories.Remove(category);
+        await context.SaveChangesAsync();
     }
 }

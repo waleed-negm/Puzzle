@@ -14,6 +14,6 @@ public class Product : BaseAuditableEntity
     public int CategoryId { get; set; }
 
     public Category Category { get; set; } = default!;
-    public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-    public ICollection<SupplierInvoiceItem> SupplierInvoiceItems { get; set; } = new List<SupplierInvoiceItem>();
+    public ICollection<OrderItem> OrderItems { get; set; } = [];
+    public ICollection<SupplierInvoiceItem> SupplierInvoiceItems { get; set; } = [];
 }

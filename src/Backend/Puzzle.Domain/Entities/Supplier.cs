@@ -8,6 +8,6 @@ public class Supplier : BaseAuditableEntity
     public string? Phone { get; set; }
     public string? Address { get; set; }
 
-    public ICollection<SupplierInvoice> Invoices { get; set; } = new List<SupplierInvoice>();
-    public ICollection<SupplierPayment> Payments { get; set; } = new List<SupplierPayment>();
+    public ICollection<SupplierInvoice> Invoices { get; set; } = [];
+    public ICollection<SupplierPayment> Payments { get; set; } = [];
 }

@@ -79,10 +79,9 @@ public class ClientService
     public async Task<List<OrderDto>> GetOrders(int clientId)
     {
         var clientExists = await _context.Clients.AnyAsync(c => c.Id == clientId);
-        if (!clientExists)
-            throw AppException.NotFound("Client", clientId);
-
-        return await _context.Orders
+        return !clientExists
+            ? throw AppException.NotFound("Client", clientId)
+            : await _context.Orders
             .Include(o => o.Client)
             .Include(o => o.Payments)
             .AsNoTracking()
@@ -107,10 +106,9 @@ public class ClientService
     public async Task<List<PaymentDto>> GetPayments(int clientId)
     {
         var clientExists = await _context.Clients.AnyAsync(c => c.Id == clientId);
-        if (!clientExists)
-            throw AppException.NotFound("Client", clientId);
-
-        return await _context.ClientPayments
+        return !clientExists
+            ? throw AppException.NotFound("Client", clientId)
+            : await _context.ClientPayments
             .AsNoTracking()
             .Where(p => p.ClientId == clientId)
             .OrderByDescending(p => p.PaymentDate)
